@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=sqlite+aiosqlite:///./jansahay.db
+      - SECRET_KEY=jansahay-demo-secret-key-2026
+      - STORAGE_PATH=./storage/documents
+    volumes:
+      - jansahay_storage:/app/storage
+
+volumes:
+  jansahay_storage:

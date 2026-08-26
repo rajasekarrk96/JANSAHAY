@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.pytest_cache/
+*.db
+storage/documents/*
+!storage/documents/demo/
+
+# Node / Web
+node_modules/
+.next/
+dist/
+build/
+.env
+.env.local
