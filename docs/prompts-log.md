@@ -175,3 +175,24 @@ update readme.md and other docs
 2. Updated `docs/16-deployment.md` with complete Docker Compose quickstart, volume management, service endpoints, and troubleshooting guides.
 3. Added ADR 04 (Bcrypt Pinning) and ADR 05 (Single-Port Embedded Full-Stack Delivery) to `docs/20-decision-log.md`.
 4. Synchronized `docs/prompts-log.md` with all development and debugging cycles.
+
+---
+
+## Prompt 9: 2-Minute Hackathon Demo Script & Video Preparation
+
+**Timestamp**: 2026-08-28T19:04:27+05:30  
+**Full Text**:
+```text
+# JANSAHAY — HACKATHON 2-MINUTE VIDEO RECORDING
+- Maximum video length: 2 minutes (00:00–01:00 Citizen Experience, 01:00–02:00 Architecture, Security & Engineering)
+- 100% Synthetic mock data, zero live government systems.
+- Create docs/video/script.md, docs/video/recording-checklist.md, docs/video/final-timestamp-log.md, docs/video/README.md.
+```
+
+**Actions Executed & Verified**:
+1. Inspected application UI and confirmed operational status at `http://localhost:8000/`.
+2. Authored `docs/video/script.md` containing full 242-word narration script, 12 scene cue breakdowns, and synthetic safety disclosures.
+3. Created `docs/video/recording-checklist.md` with pre-flight and quality verification criteria.
+4. Created `docs/video/final-timestamp-log.md` with second-by-second screen cue synchronization.
+5. Created `docs/video/README.md` summarizing hackathon video evaluation compliance.
+6. Executed live browser walkthrough to capture key user journeys and UI progression.
