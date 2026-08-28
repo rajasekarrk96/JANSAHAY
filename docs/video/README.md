@@ -9,6 +9,7 @@ This directory contains the full storyboard, narration script, scene-by-scene ti
 
 | File | Description |
 |:---|:---|
+| **[`jansahay_demo_walkthrough.webp`](jansahay_demo_walkthrough.webp)** | **Recorded visual walkthrough animation** demonstrating full citizen journey, Case Passport, and officer review. |
 | **[`script.md`](script.md)** | Complete 2-minute video script, voice-over text (242 words), and screen actions. |
 | **[`recording-checklist.md`](recording-checklist.md)** | Pre-flight and post-recording verification matrix and quality checklist. |
 | **[`final-timestamp-log.md`](final-timestamp-log.md)** | Exact second-by-second cue log synchronized with screen transitions. |
