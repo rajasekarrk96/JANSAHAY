@@ -133,7 +133,16 @@ The platform is continuously validated against a comprehensive 12-vector securit
 
 ## ⚡ Quickstart Guide
 
-### 1. Run the Backend & Interactive Single-Page App
+### Option A: Docker Compose (Recommended Zero-Setup)
+Run the complete backend, database, synthetic seed data, and embedded web application in an isolated container:
+```bash
+docker compose up --build
+```
+- **Web App & Citizen Portal**: [http://localhost:8000](http://localhost:8000)
+- **Interactive OpenAPI Documentation (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc API Documentation**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+### Option B: Local Python Development
 ```bash
 cd backend
 python -m venv venv
@@ -144,7 +153,7 @@ python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 Open **[http://127.0.0.1:8000](http://127.0.0.1:8000)** in your web browser.
 
-### 2. Run Automated Pytest Security Matrix
+### Run Automated Security Test Suite
 ```bash
 pytest backend/tests/test_platform.py -v
 ```

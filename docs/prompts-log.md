@@ -128,5 +128,50 @@ push
 2. Created a structured git commit reflecting the hardened engine, 12-vector security test matrix, and comprehensive documentation suite.
 3. Executed `git push origin main` (or tracked branch).
 
+---
 
+## Prompt 6: Docker Compose Build & Bcrypt Compatibility Debugging
 
+**Timestamp**: 2026-08-28T18:53:56+05:30  
+**Full Text**:
+```text
+ValueError: password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])
+------
+failed to solve: process "/bin/sh -c python -m app.db.init_db" did not complete successfully: exit code: 1
+```
+
+**Actions Executed & Verified**:
+1. Investigated root cause: `passlib` initialization probe `detect_wrap_bug` conflicting with unpinned `bcrypt>=4.1.0` strict length validation in Python 3.11 container.
+2. Updated `backend/requirements.txt` to pin `bcrypt<4.1.0`.
+3. Executed `docker compose build backend`, verifying that `init_db` completed cleanly with synthetic seed data and the container image built with exit code `0`.
+
+---
+
+## Prompt 7: Git Commit & Remote Push
+
+**Timestamp**: 2026-08-28T18:54:45+05:30  
+**Full Text**:
+```text
+push to git
+```
+
+**Actions Executed & Verified**:
+1. Staged `backend/requirements.txt`.
+2. Committed with `fix(backend): pin bcrypt<4.1.0 to resolve passlib initialization bug in Docker build` (`6829538`).
+3. Successfully pushed to GitHub repository `origin/main`.
+
+---
+
+## Prompt 8: Comprehensive Documentation & README Update
+
+**Timestamp**: 2026-08-28T18:58:59+05:30  
+**Full Text**:
+```text
+update readme.md and other docs
+```
+
+**Actions Executed & Verified**:
+1. Updated `README.md` to highlight 1-command Docker Compose execution (`docker compose up --build`), live endpoint catalog, architecture diagrams, and testing results.
+2. Updated `docs/16-deployment.md` with complete Docker Compose quickstart, volume management, service endpoints, and troubleshooting guides.
+3. Added ADR 04 (Bcrypt Pinning) and ADR 05 (Single-Port Embedded Full-Stack Delivery) to `docs/20-decision-log.md`.
+4. Synchronized `docs/prompts-log.md` with all development and debugging cycles.
