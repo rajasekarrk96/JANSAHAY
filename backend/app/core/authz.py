@@ -15,6 +15,8 @@ class ActionEnum(str, Enum):
     VIEW_DOCUMENT = "VIEW_DOCUMENT"
     RESET_DEMO = "RESET_DEMO"
     VIEW_AUDIT = "VIEW_AUDIT"
+    ESCALATE = "ESCALATE"
+    RESOLVE = "RESOLVE"
 
 class UserContext(BaseModel):
     user_id: str
@@ -47,6 +49,8 @@ ROLE_ACTION_PERMISSIONS = {
         ActionEnum.FORWARD,
         ActionEnum.REQUEST_CORRECTION,
         ActionEnum.REJECT,
+        ActionEnum.ESCALATE,
+        ActionEnum.RESOLVE,
         ActionEnum.VIEW_DOCUMENT,
         ActionEnum.VIEW_AUDIT
     },
@@ -54,6 +58,8 @@ ROLE_ACTION_PERMISSIONS = {
         ActionEnum.VIEW_CASE,
         ActionEnum.APPROVE,
         ActionEnum.REJECT,
+        ActionEnum.ESCALATE,
+        ActionEnum.RESOLVE,
         ActionEnum.VIEW_DOCUMENT,
         ActionEnum.VIEW_AUDIT
     },
@@ -61,7 +67,8 @@ ROLE_ACTION_PERMISSIONS = {
         ActionEnum.VIEW_CASE,
         ActionEnum.VIEW_DOCUMENT,
         ActionEnum.VIEW_AUDIT,
-        ActionEnum.RESET_DEMO
+        ActionEnum.RESET_DEMO,
+        ActionEnum.ESCALATE
     }
 }
 

@@ -54,6 +54,7 @@ class CaseListOut(BaseModel):
     citizen_status: str
     citizen_name: str
     version_id: int
+    sla_days: int = 7
     action_required: bool = False
     submitted_at: datetime
     updated_at: datetime
@@ -71,6 +72,8 @@ class CaseDetailOut(BaseModel):
     jurisdiction_name: str
     current_state: str
     citizen_status: str
+    status_explanation: Dict[str, str] = Field(default_factory=dict)
+    sla_days: int = 7
     action_required: bool = False
     version_id: int
     citizen_name: str

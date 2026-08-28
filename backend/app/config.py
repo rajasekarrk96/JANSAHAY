@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./jansahay.db")
     STORAGE_PATH: str = os.getenv("STORAGE_PATH", "./storage/documents")
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",

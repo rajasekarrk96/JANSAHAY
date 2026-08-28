@@ -154,22 +154,59 @@
 
     <!-- VIEW 1: Service Discovery & Catalog (Citizen Home) -->
     <section id="view-home" class="space-y-8">
-      <!-- Hero Banner -->
+      <!-- Hero Banner with Tell Us What You Need -->
       <div class="rounded-2xl bg-gradient-to-r from-gov-navy via-slate-900 to-gov-blue text-white p-8 shadow-xl relative overflow-hidden">
-        <div class="relative z-10 max-w-2xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-semibold mb-4 border border-amber-500/30">
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-semibold mb-3 border border-amber-500/30">
             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
             <span>Citizen-First Governance Engine</span>
           </div>
           <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Public Services Organized Around Your Goal</h1>
-          <p class="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
-            Discover statutory certificates, social security claim transfers, and civic grievances. No more running between departments—the platform moves your case through authorized stages transparently.
+          <p class="mt-2 text-slate-300 text-sm sm:text-base leading-relaxed">
+            Government services are organized by departments. JANSAHAY organizes them around your needs. One single platform, universal workflow, and complete milestone transparency.
           </p>
           
-          <!-- Search Bar -->
-          <div class="mt-6 relative">
-            <input type="text" id="service-search-input" onkeyup="app.filterServices(this.value)" placeholder="Search for Income Certificate, Domicile, EPFO claim, Streetlight grievance..." class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:bg-white focus:text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-sm">
-            <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5"></i>
+          <!-- "Tell Us What You Need" Discovery Box -->
+          <div class="mt-6 space-y-3">
+            <div class="relative flex items-center">
+              <input type="text" id="service-search-input" onkeypress="if(event.key==='Enter') app.discoverService()" placeholder="Tell us what you need (e.g. 'I need proof of my income for a college application')..." class="w-full pl-11 pr-28 py-3.5 rounded-xl bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-lg text-xs sm:text-sm font-medium">
+              <i data-lucide="sparkles" class="w-5 h-5 text-amber-500 absolute left-3.5"></i>
+              <button onclick="app.discoverService()" class="absolute right-2 px-3.5 py-2 bg-gov-navy text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition flex items-center gap-1 shadow">
+                <span>Find Service</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <!-- Quick Example Suggestion Chips -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="text-slate-400 font-medium">Try asking:</span>
+              <button onclick="app.fillAndDiscover('I need income proof for sister college fee concession')" class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition text-[11px]">🎓 Income Certificate</button>
+              <button onclick="app.fillAndDiscover('I moved to a new company and need to transfer my PF balance')" class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition text-[11px]">💼 EPFO Claim Transfer</button>
+              <button onclick="app.fillAndDiscover('Streetlight on my lane is not working for two weeks')" class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition text-[11px]">📢 Civic Grievance</button>
+              <button onclick="app.fillAndDiscover('Permanent residence certificate for Delhi state government job')" class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition text-[11px]">🏛️ Domicile Certificate</button>
+            </div>
+
+            <!-- AI Recommendation Popover Card -->
+            <div id="service-recommendation-card" class="hidden p-4 bg-white text-slate-900 rounded-xl border border-amber-300 shadow-2xl space-y-3 text-xs">
+              <div class="flex items-start justify-between">
+                <div class="space-y-0.5">
+                  <span class="text-[10px] uppercase font-extrabold tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded">We think you may need</span>
+                  <h4 id="rec-service-title" class="text-base font-extrabold text-slate-900">Income Certificate</h4>
+                </div>
+                <button onclick="app.dismissRecommendation()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+              </div>
+              <div>
+                <span class="font-semibold text-slate-700">Why:</span>
+                <p id="rec-service-explanation" class="text-xs text-slate-600 mt-0.5">Based on your query regarding fee concessions, you require official proof of annual household income.</p>
+              </div>
+              <div class="flex items-center gap-2 pt-1">
+                <button id="rec-service-btn" onclick="app.startRecommendedService()" class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition flex items-center gap-1.5 shadow">
+                  <span>Continue to Application</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="app.dismissRecommendation()" class="px-3 py-2 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-100">Choose Another Service</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -393,11 +430,55 @@
         <!-- Modal Body (Scrollable) -->
         <div class="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
           
+          <!-- CASE PASSPORT CONTAINER -->
+          <div class="bg-gradient-to-br from-slate-900 via-gov-navy to-slate-800 text-white rounded-2xl p-5 border border-slate-700 shadow-md space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-700/60 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-extrabold text-[10px] uppercase tracking-widest border border-amber-500/30">CASE PASSPORT</span>
+                <span id="passport-public-id" class="font-mono font-bold text-sm text-slate-100">JS-2026-INC-48192</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                <span id="passport-sla-badge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-medium">SLA: 7 Days (On Track)</span>
+                <span id="passport-stage-badge" class="px-2.5 py-0.5 rounded-full font-bold bg-amber-500 text-slate-950">VERIFICATION</span>
+              </div>
+            </div>
+
+            <!-- Milestone Progression Stepper -->
+            <div class="grid grid-cols-5 gap-2 text-center text-[10px]">
+              <div id="milestone-step-1" class="p-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                <div>✓ Step 1</div>
+                <div class="truncate text-[9px] mt-0.5 text-slate-300">Submitted</div>
+              </div>
+              <div id="milestone-step-2" class="p-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                <div>✓ Step 2</div>
+                <div class="truncate text-[9px] mt-0.5 text-slate-300">Verification</div>
+              </div>
+              <div id="milestone-step-3" class="p-2 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold badge-pulse">
+                <div>● Step 3</div>
+                <div class="truncate text-[9px] mt-0.5 text-slate-200">Dept Review</div>
+              </div>
+              <div id="milestone-step-4" class="p-2 rounded-lg bg-slate-800 text-slate-400 font-medium">
+                <div>○ Step 4</div>
+                <div class="truncate text-[9px] mt-0.5 text-slate-500">Approval</div>
+              </div>
+              <div id="milestone-step-5" class="p-2 rounded-lg bg-slate-800 text-slate-400 font-medium">
+                <div>○ Step 5</div>
+                <div class="truncate text-[9px] mt-0.5 text-slate-500">Completed</div>
+              </div>
+            </div>
+
+            <!-- Reassurance Banner -->
+            <div id="passport-reassurance" class="text-xs text-amber-300 font-medium bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20 flex items-center gap-2">
+              <i data-lucide="info" class="w-4 h-4 text-amber-400 shrink-0"></i>
+              <span id="passport-reassurance-text">You don't need to do anything right now. Your application is under active verification.</span>
+            </div>
+          </div>
+
           <!-- Action Required Notice if active -->
           <div id="modal-action-required-alert" class="hidden p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r-xl text-amber-900 space-y-2">
             <div class="flex items-center gap-2 font-bold text-sm">
               <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600"></i>
-              <span>Action Required: Document Deficient</span>
+              <span>ACTION REQUIRED: Document Replacement Needed</span>
             </div>
             <p id="modal-action-required-remarks" class="text-xs">The officer noted: Salary slip scan is unreadable. Please upload a clear replacement document.</p>
             <div id="citizen-reupload-box" class="pt-2">
@@ -405,10 +486,30 @@
             </div>
           </div>
 
-          <!-- Plain Language Citizen Progression -->
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Milestone</span>
-            <p id="modal-citizen-status" class="text-sm font-semibold text-slate-800 mt-0.5">Under Initial Verification with Front-Desk Officer.</p>
+          <!-- ONE CASE — ONE TIMELINE: 4-Question Status Explanation Card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
+            <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5 border-b border-slate-100 pb-2">
+              <i data-lucide="help-circle" class="w-4 h-4 text-gov-blue"></i>
+              <span>Status Explanation & Citizen Clarity</span>
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-700 block">1. What happened?</span>
+                <p id="exp-what-happened" class="text-slate-600 mt-1">Application verified by desk officer.</p>
+              </div>
+              <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-700 block">2. What does it mean?</span>
+                <p id="exp-what-it-means" class="text-slate-600 mt-1">Your uploaded identity proofs satisfy initial criteria.</p>
+              </div>
+              <div class="p-3 rounded-lg bg-amber-50/50 border border-amber-200">
+                <span class="font-bold text-amber-900 block">3. Do I need to do anything?</span>
+                <p id="exp-action-needed" class="text-amber-800 mt-1 font-medium">You don't need to do anything right now.</p>
+              </div>
+              <div class="p-3 rounded-lg bg-blue-50/50 border border-blue-200">
+                <span class="font-bold text-blue-900 block">4. What happens next?</span>
+                <p id="exp-what-next" class="text-blue-800 mt-1">Reviewing officer will evaluate municipal land records.</p>
+              </div>
+            </div>
           </div>
 
           <!-- Grid: Applicant Data & Attached Documents -->

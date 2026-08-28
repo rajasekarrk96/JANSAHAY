@@ -36,6 +36,64 @@ def compute_citizen_status(state: str) -> str:
     }
     return status_map.get(state, f"In Progress ({state})")
 
+def compute_stage_explanation(state: str, service_title: str = "Service", remarks: Optional[str] = None) -> dict:
+    explanations = {
+        "DRAFT": {
+            "what_happened": "Draft saved locally.",
+            "what_it_means": "Your application has been created as a draft.",
+            "action_needed": "Complete all questionnaire fields and submit.",
+            "what_happens_next": "Once submitted, it will be assigned to a verification desk."
+        },
+        "SUBMITTED": {
+            "what_happened": "Application successfully submitted.",
+            "what_it_means": "Your application and uploaded documents have been securely received in the intake queue.",
+            "action_needed": "You don't need to do anything right now.",
+            "what_happens_next": "A verification officer will check your uploaded documents against statutory rules."
+        },
+        "VERIFICATION": {
+            "what_happened": "Under front-desk document verification.",
+            "what_it_means": "The verification officer is checking all uploaded documents for clarity and compliance.",
+            "action_needed": "You don't need to do anything right now.",
+            "what_happens_next": "Upon successful verification, the application is forwarded for departmental scrutiny."
+        },
+        "DEPARTMENT_REVIEW": {
+            "what_happened": "Under departmental scrutiny.",
+            "what_it_means": "The responsible department officer is verifying eligibility and municipal/land records.",
+            "action_needed": "You don't need to do anything right now.",
+            "what_happens_next": "The reviewing officer will forward recommendations to the competent approving authority."
+        },
+        "ACTION_REQUIRED": {
+            "what_happened": "A document or detail requires correction.",
+            "what_it_means": f"The scrutiny desk noted: {remarks or 'Defective or unreadable scan detected.'}",
+            "action_needed": "Please upload a clear replacement document using the action box below.",
+            "what_happens_next": "Once you submit the replacement, verification will resume automatically."
+        },
+        "APPROVAL": {
+            "what_happened": "Under final statutory approval review.",
+            "what_it_means": "The application is with the competent approving authority (Executive Magistrate / Tahsildar).",
+            "action_needed": "You don't need to do anything right now.",
+            "what_happens_next": "Upon final authorization, your official digital certificate will be generated."
+        },
+        "RESOLVED": {
+            "what_happened": "Application approved & completed.",
+            "what_it_means": "Statutory approval has been granted. Your official digital certificate is ready.",
+            "action_needed": "You can view and verify your digital certificate below.",
+            "what_happens_next": "No further action is required. This case is closed and archived."
+        },
+        "REJECTED": {
+            "what_happened": "Application rejected based on statutory review.",
+            "what_it_means": f"The reviewing authority recorded: {remarks or 'Statutory requirements not satisfied.'}",
+            "action_needed": "Review the recorded remarks. You may submit a fresh application with valid proofs.",
+            "what_happens_next": "Case is closed."
+        }
+    }
+    return explanations.get(state, {
+        "what_happened": f"Status: {state}",
+        "what_it_means": "Your case is progressing through the authorized workflow.",
+        "action_needed": "No action required at this moment.",
+        "what_happens_next": "Awaiting next officer action."
+    })
+
 @router.post("", response_model=CaseDetailOut, status_code=status.HTTP_201_CREATED)
 async def create_case(
     payload: CaseCreateInput,
@@ -137,6 +195,7 @@ async def list_cases(
 
     output = []
     for c in cases:
+        sla = c.service.sla_days if c.service else 7
         output.append(CaseListOut(
             id=c.id,
             public_case_id=c.public_case_id,
@@ -148,6 +207,7 @@ async def list_cases(
             citizen_status=compute_citizen_status(c.current_state),
             citizen_name=c.citizen.full_name if c.citizen else "Citizen",
             version_id=c.version_id,
+            sla_days=sla,
             action_required=(c.current_state == "ACTION_REQUIRED"),
             submitted_at=c.submitted_at,
             updated_at=c.updated_at
@@ -190,11 +250,15 @@ async def get_case_detail_by_id(case_id: str, current_user: UserContext, db: Asy
     actions_raw = await WorkflowEngine.get_available_actions_for_user(db, c, current_user)
     available_actions = [AvailableActionOut(**a) for a in actions_raw]
 
+    service_name = c.service.title if c.service else "Service"
+    explanation = compute_stage_explanation(c.current_state, service_name, c.resolution_remarks)
+    sla = c.service.sla_days if c.service else 7
+
     return CaseDetailOut(
         id=c.id,
         public_case_id=c.public_case_id,
         service_id=c.service_id,
-        service_title=c.service.title if c.service else "Service",
+        service_title=service_name,
         service_code=c.service.code if c.service else "",
         category=c.service.category if c.service else "GENERAL",
         department_id=c.department_id,
@@ -203,6 +267,8 @@ async def get_case_detail_by_id(case_id: str, current_user: UserContext, db: Asy
         jurisdiction_name=c.jurisdiction.name if c.jurisdiction else "",
         current_state=c.current_state,
         citizen_status=compute_citizen_status(c.current_state),
+        status_explanation=explanation,
+        sla_days=sla,
         action_required=(c.current_state == "ACTION_REQUIRED"),
         version_id=c.version_id,
         citizen_name=c.citizen.full_name if c.citizen else "Citizen",

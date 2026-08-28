@@ -243,3 +243,74 @@ async def test_ai_assist_bounded_recommendations():
         data = ai_res.json()
         assert data["recommended_service_id"] == "EPFO_CLAIM_TRANSFER"
         assert "EPFO" in data["service_title"] or "Provident" in data["explanation"]
+
+@pytest.mark.asyncio
+async def test_officer_cross_jurisdiction_isolation():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Login South Delhi Revenue Verification Officer
+        res_south = await client.post("/api/v1/auth/login", json={"username": "vo_south_delhi_rev", "password": "Password123!"})
+        token_south = res_south.json()["access_token"]
+
+        # Attempt to access Central Delhi case (JS-2026-INC-48192)
+        res = await client.get("/api/v1/cases/JS-2026-INC-48192", headers={"Authorization": f"Bearer {token_south}"})
+        assert res.status_code == 403 # DENY cross-jurisdiction access
+
+@pytest.mark.asyncio
+async def test_officer_invalid_role_action_forbidden():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Login Central Delhi Verification Officer
+        res_vo = await client.post("/api/v1/auth/login", json={"username": "vo_delhi_rev", "password": "Password123!"})
+        token_vo = res_vo.json()["access_token"]
+
+        # Attempt to execute APPROVE action (which is restricted to APPROVING_OFFICER)
+        payload = {
+            "version_id": 1,
+            "remarks": "Attempting illegal approval by verification officer."
+        }
+        res = await client.post(
+            "/api/v1/cases/JS-2026-INC-48192/actions/APPROVE",
+            json=payload,
+            headers={"Authorization": f"Bearer {token_vo}"}
+        )
+        assert res.status_code == 403 # Verification Officer cannot APPROVE
+
+@pytest.mark.asyncio
+async def test_arbitrary_state_or_invalid_transition_rejected():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Login Central Delhi Verification Officer
+        res_vo = await client.post("/api/v1/auth/login", json={"username": "vo_delhi_rev", "password": "Password123!"})
+        token_vo = res_vo.json()["access_token"]
+
+        # Attempt unknown action
+        payload = {
+            "version_id": 1,
+            "remarks": "Attempting bogus action."
+        }
+        res_unknown = await client.post(
+            "/api/v1/cases/JS-2026-INC-48192/actions/BOGUS_ACTION",
+            json=payload,
+            headers={"Authorization": f"Bearer {token_vo}"}
+        )
+        assert res_unknown.status_code in [400, 422]
+
+@pytest.mark.asyncio
+async def test_unauthorized_document_download_forbidden():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Get case as VO to find document ID
+        res_vo = await client.post("/api/v1/auth/login", json={"username": "vo_delhi_rev", "password": "Password123!"})
+        token_vo = res_vo.json()["access_token"]
+        case_res = await client.get("/api/v1/cases/JS-2026-INC-48192", headers={"Authorization": f"Bearer {token_vo}"})
+        doc_id = case_res.json()["documents"][0]["id"]
+
+        # Login Anita (Citizen 2) who does NOT own this case
+        res_anita = await client.post("/api/v1/auth/login", json={"username": "citizen_anita", "password": "Password123!"})
+        token_anita = res_anita.json()["access_token"]
+
+        # Attempt to download Rahul's document
+        doc_res = await client.get(f"/api/v1/documents/{doc_id}/download", headers={"Authorization": f"Bearer {token_anita}"})
+        assert doc_res.status_code == 403 # DENY unauthorized document download
+

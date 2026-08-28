@@ -10,7 +10,13 @@ router = APIRouter(prefix="/admin", tags=["Administration & Demo Control"])
 
 @router.post("/reset-demo")
 async def reset_demo_database(db: AsyncSession = Depends(get_db)):
-    """Restores all tables to pristine initial seed state."""
+    """Restores all tables to pristine initial seed state in development/demo environments."""
+    from app.config import settings
+    if settings.ENVIRONMENT.lower() == "production":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Demo database reset is permanently disabled in production environments."
+        )
     await init_db_data(db)
     return {
         "status": "SUCCESS",

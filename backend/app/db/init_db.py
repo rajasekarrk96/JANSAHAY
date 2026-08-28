@@ -227,6 +227,22 @@ async def init_db_data(session: AsyncSession):
                 "requires_remarks": True
             },
             {
+                "action": "ESCALATE",
+                "from_state": ["SUBMITTED", "VERIFICATION", "DEPARTMENT_REVIEW", "APPROVAL"],
+                "to_state": "APPROVAL",
+                "allowed_roles": ["DEPARTMENT_OFFICER", "APPROVING_OFFICER", "SYSTEM_ADMIN"],
+                "citizen_status": "Your application is taking longer than expected. It has been escalated for senior review.",
+                "requires_remarks": True
+            },
+            {
+                "action": "RESOLVE",
+                "from_state": ["SUBMITTED", "VERIFICATION", "DEPARTMENT_REVIEW", "APPROVAL"],
+                "to_state": "RESOLVED",
+                "allowed_roles": ["DEPARTMENT_OFFICER", "APPROVING_OFFICER"],
+                "citizen_status": "Case successfully resolved and closed.",
+                "requires_remarks": True
+            },
+            {
                 "action": "REJECT",
                 "from_state": ["SUBMITTED", "VERIFICATION", "DEPARTMENT_REVIEW", "APPROVAL"],
                 "to_state": "REJECTED",
@@ -261,20 +277,22 @@ async def init_db_data(session: AsyncSession):
     u_vo_rev = User(username="vo_delhi_rev", email="vo.delhi.rev@jansahay.gov.mock", phone_number="+91-9876510001", password_hash=default_pwd_hash, role=UserRole.VERIFICATION_OFFICER)
     u_do_rev = User(username="do_delhi_rev", email="do.delhi.rev@jansahay.gov.mock", phone_number="+91-9876510002", password_hash=default_pwd_hash, role=UserRole.DEPARTMENT_OFFICER)
     u_ao_rev = User(username="ao_delhi_rev", email="ao.delhi.rev@jansahay.gov.mock", phone_number="+91-9876510003", password_hash=default_pwd_hash, role=UserRole.APPROVING_OFFICER)
+    u_vo_south_rev = User(username="vo_south_delhi_rev", email="vo.south.delhi.rev@jansahay.gov.mock", phone_number="+91-9876510006", password_hash=default_pwd_hash, role=UserRole.VERIFICATION_OFFICER)
     u_vo_epf = User(username="vo_epfo_delhi", email="vo.epfo.delhi@jansahay.gov.mock", phone_number="+91-9876510004", password_hash=default_pwd_hash, role=UserRole.VERIFICATION_OFFICER)
     u_do_grv = User(username="do_grievance_delhi", email="do.grv.delhi@jansahay.gov.mock", phone_number="+91-9876510005", password_hash=default_pwd_hash, role=UserRole.DEPARTMENT_OFFICER)
     u_admin = User(username="admin", email="admin@jansahay.gov.mock", phone_number="+91-9876599999", password_hash=default_pwd_hash, role=UserRole.SYSTEM_ADMIN)
 
-    session.add_all([u_vo_rev, u_do_rev, u_ao_rev, u_vo_epf, u_do_grv, u_admin])
+    session.add_all([u_vo_rev, u_do_rev, u_ao_rev, u_vo_south_rev, u_vo_epf, u_do_grv, u_admin])
     await session.flush()
 
     o_vo_rev = Officer(user_id=u_vo_rev.id, employee_code="REV-VO-401", full_name="Sunil Verma", designation="Naib Tehsildar Desk In-Charge", department_id=dept_rev.id, jurisdiction_id=jur_delhi_c.id)
     o_do_rev = Officer(user_id=u_do_rev.id, employee_code="REV-DO-204", full_name="Priya Nair", designation="Revenue Inspector", department_id=dept_rev.id, jurisdiction_id=jur_delhi_c.id)
     o_ao_rev = Officer(user_id=u_ao_rev.id, employee_code="REV-AO-101", full_name="Rajesh Kumar", designation="Tehsildar (Executive Magistrate)", department_id=dept_rev.id, jurisdiction_id=jur_delhi_c.id)
+    o_vo_south_rev = Officer(user_id=u_vo_south_rev.id, employee_code="REV-VO-402", full_name="Vikram Sethi", designation="Naib Tehsildar Desk In-Charge (South)", department_id=dept_rev.id, jurisdiction_id=jur_delhi_s.id)
     o_vo_epf = Officer(user_id=u_vo_epf.id, employee_code="EPF-VO-882", full_name="Amit Roy", designation="Section Supervisor", department_id=dept_epfo.id, jurisdiction_id=jur_delhi_c.id)
     o_do_grv = Officer(user_id=u_do_grv.id, employee_code="GRV-DO-512", full_name="Sanjay Gupta", designation="Grievance Redressal Nodal Officer", department_id=dept_grv.id, jurisdiction_id=jur_delhi_c.id)
 
-    session.add_all([o_vo_rev, o_do_rev, o_ao_rev, o_vo_epf, o_do_grv])
+    session.add_all([o_vo_rev, o_do_rev, o_ao_rev, o_vo_south_rev, o_vo_epf, o_do_grv])
     await session.flush()
 
     # 6. Pre-seed Demo Case for Rahul Sharma
