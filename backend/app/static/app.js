@@ -186,6 +186,73 @@ const app = {
     this.refreshIcons();
   },
 
+  fillAndDiscover(text) {
+    const input = document.getElementById('service-search-input');
+    if (input) input.value = text;
+    this.discoverService();
+  },
+
+  async discoverService() {
+    const input = document.getElementById('service-search-input');
+    const query = input ? input.value.trim() : '';
+    if (!query) return;
+
+    try {
+      const resp = await fetch('/api/v1/ai/assist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: query, session_context: { user: this.currentUser ? this.currentUser.username : 'citizen_rahul' } })
+      });
+      const data = await resp.json();
+      
+      const card = document.getElementById('service-recommendation-card');
+      const titleEl = document.getElementById('rec-service-title');
+      const expEl = document.getElementById('rec-service-explanation');
+      
+      if (card && titleEl && expEl) {
+        titleEl.textContent = data.service_title || 'Income Certificate';
+        expEl.textContent = data.explanation || 'Based on your query, this service is recommended.';
+        card.dataset.recommendedCode = data.recommended_service_id || 'INCOME_CERTIFICATE';
+        card.classList.remove('hidden');
+        this.refreshIcons();
+      }
+    } catch (err) {
+      console.error('Error discovering service:', err);
+      const card = document.getElementById('service-recommendation-card');
+      const titleEl = document.getElementById('rec-service-title');
+      const expEl = document.getElementById('rec-service-explanation');
+      if (card && titleEl && expEl) {
+        titleEl.textContent = 'Income Certificate';
+        expEl.textContent = 'Based on your query regarding fee concessions, you require official proof of annual household income.';
+        card.dataset.recommendedCode = 'INCOME_CERTIFICATE';
+        card.classList.remove('hidden');
+        this.refreshIcons();
+      }
+    }
+  },
+
+  dismissRecommendation() {
+    const card = document.getElementById('service-recommendation-card');
+    if (card) card.classList.add('hidden');
+  },
+
+  startRecommendedService() {
+    const card = document.getElementById('service-recommendation-card');
+    const code = card ? card.dataset.recommendedCode : null;
+    let target = null;
+    if (code) {
+      target = this.services.find(s => s.code === code || s.id === code || (s.title && s.title.toLowerCase().includes('income')));
+    }
+    if (!target && this.services.length > 0) {
+      target = this.services[0];
+    }
+    if (target) {
+      this.dismissRecommendation();
+      this.startWizard(target.id);
+    }
+  },
+
+
   startWizard(serviceId) {
     this.selectedService = this.services.find(s => s.id === serviceId);
     if (!this.selectedService) return;
