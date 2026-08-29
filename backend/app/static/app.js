@@ -615,8 +615,51 @@ const app = {
     document.getElementById('modal-public-id').textContent = c.public_case_id;
     document.getElementById('modal-status-badge').textContent = c.current_state;
     document.getElementById('modal-service-title').textContent = `${c.service_title} · ${c.department_name}`;
-    document.getElementById('modal-citizen-status').textContent = c.citizen_status;
     document.getElementById('modal-case-version').textContent = c.version_id;
+
+    // Case Passport header
+    document.getElementById('passport-public-id').textContent = c.public_case_id;
+    document.getElementById('passport-stage-badge').textContent = c.current_state.replace('_', ' ');
+    document.getElementById('passport-sla-badge').textContent =
+      `SLA: ${c.sla_days} Days ${c.current_state === 'RESOLVED' ? '(Completed)' : '(On Track)'}`;
+    document.getElementById('passport-reassurance-text').textContent = c.citizen_status;
+
+    // Milestone Progression Stepper
+    const MILESTONES = ['SUBMITTED', 'VERIFICATION', 'DEPARTMENT_REVIEW', 'APPROVAL', 'RESOLVED'];
+    const activeIdx = c.current_state === 'ACTION_REQUIRED'
+      ? 1
+      : Math.max(0, MILESTONES.indexOf(c.current_state));
+    MILESTONES.forEach((_, i) => {
+      const dot = document.getElementById(`milestone-step-${i + 1}`);
+      if (!dot) return;
+      const marker = dot.querySelector('div:first-child');
+      const isDone = i < activeIdx;
+      const isActive = i === activeIdx;
+      if (isDone) {
+        dot.className = 'p-2 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold';
+        if (marker) marker.textContent = `✓ Step ${i + 1}`;
+      } else if (isActive) {
+        const needsCitizen = c.action_required;
+        dot.className = `p-2 rounded-lg ${needsCitizen ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'} font-bold badge-pulse`;
+        if (marker) marker.textContent = `● Step ${i + 1}`;
+      } else {
+        dot.className = 'p-2 rounded-lg bg-slate-800 text-slate-400 font-medium';
+        if (marker) marker.textContent = `○ Step ${i + 1}`;
+      }
+    });
+
+    // Plain-language status explanation (4 questions)
+    const exp = c.status_explanation || {};
+    const expMap = {
+      'exp-what-happened': exp.what_happened,
+      'exp-what-it-means': exp.what_it_means,
+      'exp-action-needed': exp.action_needed,
+      'exp-what-next': exp.what_happens_next
+    };
+    Object.entries(expMap).forEach(([id, text]) => {
+      const el = document.getElementById(id);
+      if (el && text) el.textContent = text;
+    });
 
     // Action Required Banner
     const actionRequiredAlert = document.getElementById('modal-action-required-alert');

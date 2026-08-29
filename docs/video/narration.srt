@@ -1,0 +1,72 @@
+1
+00:00:00,000 --> 00:00:02,726
+Government services can be difficult to navigate.
+
+2
+00:00:02,726 --> 00:00:07,400
+JANSAHAY makes the journey simpler, starting with what the citizen actually needs.
+
+3
+00:00:08,000 --> 00:00:17,400
+Instead of searching through departments, the citizen simply describes their goal.
+
+4
+00:00:18,000 --> 00:00:29,400
+JANSAHAY asks a few simple questions and shows exactly what documents are needed.
+
+5
+00:00:30,000 --> 00:00:37,643
+The citizen uploads the required documents and submits the application.
+
+6
+00:00:37,643 --> 00:00:42,229
+A Case Passport is created immediately.
+
+7
+00:00:42,229 --> 00:00:51,400
+The citizen can see where the case is and what happens next.
+
+8
+00:00:52,000 --> 00:00:59,400
+Behind the scenes, the case moves through the right officers.
+
+9
+00:01:00,000 --> 00:01:07,200
+Technically, JANSAHAY uses one case engine and one workflow engine.
+
+10
+00:01:07,200 --> 00:01:14,400
+The same system can support certificates, EPFO claims, and grievances.
+
+11
+00:01:15,000 --> 00:01:19,306
+Security is enforced on the server.
+
+12
+00:01:19,306 --> 00:01:28,635
+Officers only see cases and actions allowed for their role, department, and jurisdiction.
+
+13
+00:01:28,635 --> 00:01:31,506
+Invalid actions are rejected.
+
+14
+00:01:31,506 --> 00:01:39,400
+Every important workflow action is recorded in a tamper-evident audit history.
+
+15
+00:01:40,000 --> 00:01:44,608
+AI helps with service discovery and simple explanations.
+
+16
+00:01:44,608 --> 00:01:49,216
+It cannot approve, reject, or change a case.
+
+17
+00:01:49,216 --> 00:01:54,400
+This prototype uses synthetic data and mocked government integrations.
+
+18
+00:01:55,000 --> 00:01:58,680
+JANSAHAY puts the citizen's journey first.
+
