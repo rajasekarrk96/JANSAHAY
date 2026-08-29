@@ -1,0 +1,76 @@
+# JANSAHAY — Render Blueprint
+#
+# Deploys the FastAPI backend, which also serves the citizen/officer SPA from
+# backend/app/static. One web service, no separate frontend deploy.
+#
+# Usage: Render Dashboard -> New -> Blueprint -> pick this repo.
+#
+# NOTE ON STATE (hackathon prototype defaults):
+#   The image is built with a pre-seeded SQLite database (`python -m app.db.init_db`
+#   runs during the Docker build), so every deploy starts from the same synthetic
+#   demo data. Uploaded documents and workflow progress live on the instance's
+#   ephemeral disk and are LOST on redeploy, restart, or free-tier spin-down.
+#   That is usually what you want for a demo. See "Persisting data" at the bottom
+#   if you need state to survive.
+
+services:
+  - type: web
+    name: jansahay
+    runtime: docker
+    plan: free
+    region: singapore # closest Render region to India; also: oregon, virginia, ohio, frankfurt
+    branch: main
+
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+
+    # The Dockerfile's CMD hardcodes port 8000. Render assigns a port via $PORT,
+    # so bind to that, falling back to 8000 for local `docker run` parity.
+    dockerCommand: sh -c "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+
+    # The app has no /health route (docs/16-deployment.md mentions one, but it is
+    # not implemented in app/main.py). "/" serves the SPA and returns 200.
+    healthCheckPath: /
+
+    autoDeploy: true
+
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./jansahay.db
+
+      - key: STORAGE_PATH
+        value: ./storage/documents
+
+      # Signs the demo JWTs. Generated once by Render and kept across deploys;
+      # never commit a real secret here.
+      - key: SECRET_KEY
+        generateValue: true
+
+      # Optional. app/core/ai_service.py falls back to deterministic rule-based
+      # guidance when this is empty, so leaving it unset is fine for the demo.
+      # `sync: false` means Render prompts for it instead of storing it in git.
+      - key: OPENAI_API_KEY
+        sync: false
+
+# ---------------------------------------------------------------------------
+# Persisting data (optional — requires a paid instance type)
+#
+# Render disks are not available on the free plan and disable zero-downtime
+# deploys. To keep uploaded documents and case progress across restarts:
+#
+#   1. Set `plan: starter` (or higher) above.
+#   2. Uncomment the disk block below.
+#   3. Point both paths at the mounted disk:
+#        DATABASE_URL  ->  sqlite+aiosqlite:////var/jansahay/jansahay.db
+#        STORAGE_PATH  ->  /var/jansahay/documents
+#      (four slashes in the sqlite URL = absolute path). On first boot the
+#      startup hook in app/main.py seeds the database if the file is absent.
+#
+#    disk:
+#      name: jansahay-data
+#      mountPath: /var/jansahay
+#      sizeGB: 1
+# ---------------------------------------------------------------------------
